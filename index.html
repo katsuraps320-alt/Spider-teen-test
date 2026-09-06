@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>SPIDER TEENERIX</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ LOADING SCREEN ============ -->
+<div id="loading-screen">
+  <div class="loading-logo">SPIDER<span>TEENERIX</span></div>
+  <div class="loading-sub">VEYRON CITY</div>
+  <div class="loading-bar-track"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
+  <div class="loading-tip" id="loading-tip">Tip: Swipe the right side of the screen to look around.</div>
+</div>
+
+<!-- ============ START SCREEN ============ -->
+<div id="start-screen" class="hidden">
+  <div class="start-logo">SPIDER<span>TEENERIX</span></div>
+  <div class="start-tagline">A VORTEX RUNS THROUGH VEYRON CITY</div>
+  <button id="btn-new-game" class="menu-btn">NEW GAME</button>
+  <button id="btn-continue" class="menu-btn">CONTINUE</button>
+  <button id="btn-settings-open" class="menu-btn secondary">SETTINGS</button>
+  <div class="start-footer">Kairo Teenerix · Vortex Threads</div>
+</div>
+
+<!-- ============ GAME CANVAS ============ -->
+<canvas id="game-canvas"></canvas>
+
+<!-- ============ RAIN CANVAS OVERLAY ============ -->
+<canvas id="weather-canvas"></canvas>
+
+<!-- ============ HUD ============ -->
+<div id="hud" class="hidden">
+
+  <!-- Top left: identity + level/xp -->
+  <div class="hud-topleft">
+    <div class="hud-title">SPIDER<span>TEENERIX</span></div>
+    <div class="hud-name">Kairo Teenerix</div>
+    <div class="hud-level-row">
+      <div class="hud-level">LV <span id="hud-level-num">1</span></div>
+      <div class="xp-track"><div class="xp-fill" id="hud-xp-fill"></div></div>
+    </div>
+    <div class="hud-bars">
+      <div class="bar-row">
+        <div class="bar-label">HP</div>
+        <div class="bar-track"><div class="bar-fill hp-fill" id="hud-hp-fill"></div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">VTX</div>
+        <div class="bar-track"><div class="bar-fill vtx-fill" id="hud-vtx-fill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top right: phone + wanted stars -->
+  <div class="hud-topright">
+    <div id="wanted-stars" class="wanted-stars hidden"></div>
+    <button id="btn-phone" class="icon-btn" aria-label="Phone">
+      <svg viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 2v13h10V4H7zm3 15h4v1h-4v-1z"/></svg>
+    </button>
+    <div class="hud-money">$<span id="hud-money-num">0</span></div>
+  </div>
+
+  <!-- Center top: mission banner -->
+  <div id="mission-banner" class="mission-banner hidden">
+    <div class="mission-banner-title" id="mission-banner-title"></div>
+    <div class="mission-banner-obj" id="mission-banner-obj"></div>
+  </div>
+
+  <!-- Center: crosshair / interact prompt -->
+  <div id="interact-prompt" class="interact-prompt hidden">TAP ATTACH TO SWING</div>
+
+  <!-- Toast messages -->
+  <div id="toast-container"></div>
+
+  <!-- Now playing mini bar -->
+  <div id="mini-player" class="mini-player hidden">
+    <div class="mini-player-dot"></div>
+    <div class="mini-player-title" id="mini-player-title">No track</div>
+  </div>
+
+  <!-- ===== LEFT CONTROLS: joystick ===== -->
+  <div id="joystick-zone" class="joystick-zone">
+    <div id="joystick-base" class="joystick-base">
+      <div id="joystick-knob" class="joystick-knob"></div>
+    </div>
+  </div>
+
+  <!-- ===== RIGHT CONTROLS: camera swipe + action buttons ===== -->
+  <div id="camera-zone" class="camera-zone"></div>
+
+  <div class="action-buttons">
+    <button id="btn-emote" class="action-btn small-btn" data-action="emote">EMOTE</button>
+    <button id="btn-release" class="action-btn small-btn" data-action="release">RELEASE</button>
+    <button id="btn-boost" class="action-btn small-btn" data-action="boost">BOOST</button>
+    <div class="action-row-main">
+      <button id="btn-vortex" class="action-btn vortex-btn" data-action="vortex">VORTEX</button>
+      <button id="btn-attack" class="action-btn attack-btn" data-action="attack">ATTACK</button>
+      <button id="btn-jump" class="action-btn jump-btn" data-action="jump">JUMP</button>
+    </div>
+  </div>
+
+  <!-- Emote radial menu -->
+  <div id="emote-menu" class="emote-menu hidden">
+    <button class="emote-option" data-emote="wave">WAVE</button>
+    <button class="emote-option" data-emote="peace">PEACE</button>
+    <button class="emote-option" data-emote="salute">SALUTE</button>
+    <button class="emote-option" data-emote="vortex">VORTEX</button>
+  </div>
+
+</div>
+
+<!-- ============ PHONE UI ============ -->
+<div id="phone-overlay" class="phone-overlay hidden">
+  <div class="phone-body">
+    <div class="phone-header">
+      <div class="phone-time" id="phone-time">--:--</div>
+      <button id="btn-phone-close" class="phone-close">✕</button>
+    </div>
+
+    <div class="phone-tabs">
+      <button class="phone-tab active" data-tab="home">HOME</button>
+      <button class="phone-tab" data-tab="crime">CRIME</button>
+      <button class="phone-tab" data-tab="map">MAP</button>
+      <button class="phone-tab" data-tab="police">POLICE</button>
+      <button class="phone-tab" data-tab="music">MUSIC</button>
+      <button class="phone-tab" data-tab="news">NEWS</button>
+    </div>
+
+    <div class="phone-content">
+
+      <!-- HOME -->
+      <div class="phone-panel active" id="panel-home">
+        <div class="panel-heading">VEYRON STATUS</div>
+        <div class="status-grid">
+          <div class="status-card"><div class="status-label">DISTRICT</div><div class="status-value" id="status-district">Central</div></div>
+          <div class="status-card"><div class="status-label">TIME</div><div class="status-value" id="status-time">Morning</div></div>
+          <div class="status-card"><div class="status-label">WEATHER</div><div class="status-value" id="status-weather">Clear</div></div>
+          <div class="status-card"><div class="status-label">WANTED</div><div class="status-value" id="status-wanted">None</div></div>
+        </div>
+        <div class="panel-heading">NOTIFICATIONS</div>
+        <div id="notif-list" class="notif-list"></div>
+      </div>
+
+      <!-- CRIME -->
+      <div class="phone-panel" id="panel-crime">
+        <div class="panel-heading">ACTIVE CRIMES</div>
+        <div id="crime-list" class="crime-list"></div>
+      </div>
+
+      <!-- MAP -->
+      <div class="phone-panel" id="panel-map">
+        <div class="panel-heading">VEYRON CITY MAP</div>
+        <canvas id="map-canvas" width="300" height="300"></canvas>
+        <div class="map-legend">
+          <div><span class="legend-dot legend-player"></span> You</div>
+          <div><span class="legend-dot legend-crime"></span> Crime</div>
+          <div><span class="legend-dot legend-mission"></span> Mission</div>
+        </div>
+      </div>
+
+      <!-- POLICE -->
+      <div class="phone-panel" id="panel-police">
+        <div class="panel-heading">POLICE SCANNER</div>
+        <div id="police-list" class="police-list"></div>
+      </div>
+
+      <!-- MUSIC -->
+      <div class="phone-panel" id="panel-music">
+        <div class="panel-heading">YOUR MUSIC</div>
+        <input type="file" id="music-file-input" accept="audio/*" multiple style="display:none">
+        <button id="btn-pick-music" class="menu-btn small">CHOOSE AUDIO FILES</button>
+        <div id="music-queue" class="music-queue"></div>
+
+        <div class="player-now">
+          <div class="player-track-name" id="player-track-name">No track selected</div>
+          <div class="player-seek-row">
+            <span id="player-current-time">0:00</span>
+            <input type="range" id="player-seek" min="0" max="100" value="0" step="0.1">
+            <span id="player-duration">0:00</span>
+          </div>
+          <div class="player-controls">
+            <button id="btn-prev" class="player-ctrl-btn">⏮</button>
+            <button id="btn-rewind" class="player-ctrl-btn">⏪10</button>
+            <button id="btn-playpause" class="player-ctrl-btn big">▶</button>
+            <button id="btn-stop" class="player-ctrl-btn">⏹</button>
+            <button id="btn-next" class="player-ctrl-btn">⏭</button>
+          </div>
+          <div class="player-volume-row">
+            <span>VOL</span>
+            <input type="range" id="player-volume" min="0" max="100" value="70">
+          </div>
+        </div>
+      </div>
+
+      <!-- NEWS -->
+      <div class="phone-panel" id="panel-news">
+        <div class="panel-heading">VEYRON NEWS NETWORK</div>
+        <div id="news-list" class="news-list"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div id="settings-overlay" class="settings-overlay hidden">
+  <div class="settings-body">
+    <div class="panel-heading">SETTINGS</div>
+
+    <div class="setting-row"><label>Graphics Quality</label>
+      <select id="set-graphics"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+    </div>
+    <div class="setting-row"><label>Music Volume</label><input type="range" id="set-music-vol" min="0" max="100" value="70"></div>
+    <div class="setting-row"><label>SFX Volume</label><input type="range" id="set-sfx-vol" min="0" max="100" value="80"></div>
+    <div class="setting-row"><label>Camera Sensitivity</label><input type="range" id="set-cam-sens" min="10" max="100" value="50"></div>
+    <div class="setting-row"><label>Control Sensitivity</label><input type="range" id="set-ctrl-sens" min="10" max="100" value="50"></div>
+    <div class="setting-row"><label>Show FPS</label><input type="checkbox" id="set-show-fps"></div>
+    <div class="setting-row"><label>Vibration</label><input type="checkbox" id="set-vibration" checked></div>
+
+    <div class="settings-btn-row">
+      <button id="btn-settings-save" class="menu-btn small">SAVE & CLOSE</button>
+      <button id="btn-settings-newgame" class="menu-btn small secondary">NEW GAME (RESET)</button>
+    </div>
+  </div>
+</div>
+
+<div id="fps-counter" class="fps-counter hidden">FPS: 60</div>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>
